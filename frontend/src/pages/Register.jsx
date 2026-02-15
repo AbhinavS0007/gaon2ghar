@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Register() {
   const [form, setForm] = useState({
@@ -28,36 +28,59 @@ function Register() {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded shadow-md w-80"
+      >
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          Register
+        </h2>
+
         <input
           name="name"
           placeholder="Name"
           onChange={handleChange}
+          className="w-full border p-2 mb-3 rounded"
         />
-        <br />
+
         <input
           name="phone"
           placeholder="Phone"
           onChange={handleChange}
+          className="w-full border p-2 mb-3 rounded"
         />
-        <br />
+
         <input
           name="password"
           type="password"
           placeholder="Password"
           onChange={handleChange}
+          className="w-full border p-2 mb-3 rounded"
         />
-        <br />
 
-        <select name="role" onChange={handleChange}>
+        <select
+          name="role"
+          onChange={handleChange}
+          className="w-full border p-2 mb-4 rounded"
+        >
           <option value="customer">Customer</option>
           <option value="farmer">Farmer</option>
         </select>
-        <br />
 
-        <button type="submit">Register</button>
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        >
+          Register
+        </button>
+
+        <p className="text-center mt-3">
+          Already have an account?{" "}
+          <Link to="/" className="text-green-600 font-medium">
+            Login
+          </Link>
+        </p>
       </form>
     </div>
   );
