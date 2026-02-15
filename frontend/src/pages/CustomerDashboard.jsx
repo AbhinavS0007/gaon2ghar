@@ -53,42 +53,9 @@ function CustomerDashboard() {
         </h2>
 
         {/* Product cards */}
-        <div
-  key={p._id}
-  className="bg-white rounded shadow overflow-hidden"
->
-  <img
-    src="https://images.unsplash.com/photo-1606787366850-de6330128bfc"
-    alt="product"
-    className="w-full h-40 object-cover"
-  />
-
-  <div className="p-4">
-    <h4 className="text-lg font-bold">{p.name}</h4>
-    <p className="text-gray-600">₹{p.price}</p>
-    <p className="text-sm text-gray-500 mb-2">
-      Stock: {p.quantity}
-    </p>
-
-    <input
-      type="number"
-      min="1"
-      placeholder="Qty"
-      className="border p-1 w-full mb-2 rounded"
-      onChange={(e) =>
-        handleQuantityChange(p._id, e.target.value)
-      }
-    />
-
-    <button
-      onClick={() => placeOrder(p._id)}
-      className="bg-green-600 text-white w-full py-2 rounded"
-    >
-      Order
-    </button>
-  </div>
-</div>
-
+        <h3 className="text-lg font-semibold mb-4">
+          Available Products
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {products.map((p) => (
