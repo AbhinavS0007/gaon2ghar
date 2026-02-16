@@ -128,52 +128,67 @@ exports.updateCart = async (req, res) => {
 
   
   const Order = require("../models/Order");
-
-exports.checkout = async (req, res) => {
-  try {
-    const cart = await Cart.findOne({ user: req.user.id })
-      .populate("items.product");
-
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
-
-    const orders = [];
-
-    for (const item of cart.items) {
-      const product = item.product;
-
-      if (product.quantity < item.quantity) {
-        return res.status(400).json({
-          message: `Not enough stock for ${product.name}`,
-        });
+  const Product = require("../models/Product");
+  
+  exports.checkout = async (req, res) => {
+    try {
+      const cart = await Cart.findOne({ user: req.user._id })
+        .populate("items.product");
+  
+      if (!cart || cart.items.length === 0) {
+        return res.status(400).json({ message: "Cart is empty" });
       }
-
-      const totalPrice = item.quantity * product.price;
-
-      const order = await Order.create({
-        customerId: req.user.id,
-        productId: product._id,
-        quantity: item.quantity,
-        totalPrice,
-        status: "pending",
+  
+      const orders = [];
+  
+      for (const item of cart.items) {
+        const product = await Product.findById(item.product._id);
+  
+        if (!product || !product.isActive) {
+          return res.status(400).json({
+            message: `${item.product.name} is not available`,
+          });
+        }
+  
+        if (product.quantity < item.quantity) {
+          return res.status(400).json({
+            message: `Not enough stock for ${product.name}`,
+          });
+        }
+  
+        // reduce stock
+        product.quantity -= item.quantity;
+  
+        // deactivate if stock zero
+        if (product.quantity <= 0) {
+          product.quantity = 0;
+          product.isActive = false;
+        }
+  
+        await product.save();
+  
+        // create order
+        const order = await Order.create({
+          customerId: req.user._id,
+          productId: product._id,
+          quantity: item.quantity,
+          totalPrice: item.quantity * product.price,
+          status: "pending",
+        });
+  
+        orders.push(order);
+      }
+  
+      // clear cart
+      cart.items = [];
+      await cart.save();
+  
+      res.json({
+        message: "Order placed successfully",
+        orders,
       });
-
-      product.quantity -= item.quantity;
-      await product.save();
-
-      orders.push(order);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
-
-    // clear cart
-    cart.items = [];
-    await cart.save();
-
-    res.json({
-      message: "Order placed successfully",
-      orders,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+  };
+  

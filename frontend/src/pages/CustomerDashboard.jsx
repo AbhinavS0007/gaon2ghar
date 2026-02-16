@@ -20,34 +20,15 @@ function CustomerDashboard() {
         const res = await api.get("/orders/my");
         setMyOrders(res.data);
     };
-
+    
     useEffect(() => {
         fetchProducts();
         fetchMyOrders();
     }, []);
 
-    // const handleQuantityChange = (productId, value) => {
-    //     setOrders({ ...orders, [productId]: value });
-    // };
+    
 
-    // const placeOrder = async (productId) => {
-    //     const quantity = orders[productId] || 1;
 
-    //     await api.post("/orders", {
-    //         productId,
-    //         quantity: Number(quantity),
-    //     });
-
-    //     fetchProducts();
-    //     fetchMyOrders();
-    // };
-
-    const getStatusColor = (status) => {
-        if (status === "pending") return "bg-yellow-200 text-yellow-800";
-        if (status === "accepted") return "bg-blue-200 text-blue-800";
-        if (status === "delivered") return "bg-green-200 text-green-800";
-        return "bg-gray-200";
-    };
 
     const nextImage = (productId, total) => {
         setImageIndexes((prev) => ({
@@ -62,13 +43,6 @@ function CustomerDashboard() {
             ...prev,
             [productId]:
                 ((prev[productId] || 0) - 1 + total) % total,
-        }));
-    };
-
-    const handleQuantityChange = (productId, value) => {
-        setQuantities((prev) => ({
-            ...prev,
-            [productId]: Number(value),
         }));
     };
 
@@ -92,9 +66,9 @@ function CustomerDashboard() {
     return (
         <Layout>
             <div className="max-w-6xl mx-auto">
-                <h2 className="text-2xl font-bold mb-6">
+                {/* <h2 className="text-2xl font-bold mb-6">
                     Customer Dashboard
-                </h2>
+                </h2> */}
 
                 {/* Product cards */}
                 <h3 className="text-lg font-semibold mb-4">
@@ -123,9 +97,10 @@ function CustomerDashboard() {
                             </div>
 
                             {/* Content */}
-                            <div className="p-4 flex flex-col flex-grow">
-                                <h4 className="text-lg font-semibold">{p.name}</h4>
-                                <p className="text-green-700 font-bold text-lg">₹{p.price}</p>
+                            <div className="p-4 flex flex-col flex-grow bg-red-100">
+                                <div className="flex justify-between"> <h4 className="text-lg font-semibold">{p.name}</h4>
+                                <p className="text-green-700 font-bold text-lg">₹{p.price}/Kg</p></div>
+                                
                                 <p className="text-sm text-gray-500 mb-2">
                                     Stock: {p.quantity}
                                 </p>
@@ -134,7 +109,7 @@ function CustomerDashboard() {
                                     {p.description}
                                 </p>
 
-                                <input
+                                {/* <input
                                     type="number"
                                     min="1"
                                     placeholder="Qty"
@@ -142,7 +117,7 @@ function CustomerDashboard() {
                                     onChange={(e) =>
                                         handleQuantityChange(p._id, e.target.value)
                                     }
-                                />
+                                /> */}
 
 
                                 <button
@@ -158,38 +133,7 @@ function CustomerDashboard() {
 
 
 
-                {/* My orders */}
-                <h3 className="text-lg font-semibold mb-4">
-                    My Orders
-                </h3>
-
-                <div className="space-y-3">
-                    {myOrders.map((o) => (
-                        <div
-                            key={o._id}
-                            className="bg-white p-4 rounded shadow flex justify-between items-center"
-                        >
-                            <div>
-                                <p>
-                                    {o.productId
-                                        ? o.productId.name
-                                        : "Product not available"}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                    Qty: {o.quantity} | ₹{o.totalPrice}
-                                </p>
-                            </div>
-
-                            <span
-                                className={`px-3 py-1 rounded text-sm ${getStatusColor(
-                                    o.status
-                                )}`}
-                            >
-                                {o.status}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+                
             </div>
         </Layout>
     );

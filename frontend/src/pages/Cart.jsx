@@ -21,6 +21,9 @@ function Cart() {
     }
   };
 
+//   cart.items[0].product.quantity
+  
+
   const updateQuantity = async (productId, quantity) => {
     // Update UI instantly
     setCart((prevCart) => ({
@@ -54,6 +57,7 @@ function Cart() {
       alert("Failed to remove item");
     }
   };
+
   
 
   const checkout = async () => {
@@ -62,9 +66,11 @@ function Cart() {
       alert("Order placed successfully");
       fetchCart();
     } catch (err) {
+      console.log(err);
       alert("Checkout failed");
     }
   };
+
 
   const total = cart.items.reduce(
     (sum, item) =>
@@ -108,6 +114,10 @@ function Cart() {
                   <h3 className="font-semibold text-lg">
                     {item.product?.name}
                   </h3>
+
+                  <p className="text-gray-600">
+                    Stock: {item.product?.quantity} Kg
+                  </p>
 
                   <p className="text-gray-600">
                     ₹{item.product?.price} per kg

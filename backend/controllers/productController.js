@@ -22,13 +22,13 @@ exports.addProduct = async (req, res) => {
 // Get all products (public)
 exports.getAllProducts = async (req, res) => {
   try {
-    // const products = await Product.find().populate("farmerId", "name phone");
     const products = await Product.find({ isActive: true });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get farmer’s own products
 exports.getMyProducts = async (req, res) => {
