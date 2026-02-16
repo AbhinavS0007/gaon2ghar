@@ -26,6 +26,10 @@ exports.placeOrder = async (req, res) => {
 
     // reduce product stock
     product.quantity -= quantity;
+    if (product.quantity <= 0) {
+      product.quantity = 0;
+      product.isActive = false;
+    }
     await product.save();
 
     res.status(201).json(order);

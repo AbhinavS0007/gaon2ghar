@@ -15,7 +15,12 @@ const {
 router.get("/", getAllProducts);
 
 // farmer only
-router.post("/", protect, farmerOnly, addProduct);
+const upload = require("../middleware/upload");
+router.post("/", protect, farmerOnly,upload.array("images", 10), addProduct);
 router.get("/my", protect, farmerOnly, getMyProducts);
+const { deleteProduct } = require("../controllers/productController");
+router.delete("/:id", protect, farmerOnly, deleteProduct);
+const { restockProduct } = require("../controllers/productController");
+router.patch("/:id/restock", protect, farmerOnly, restockProduct);
 
 module.exports = router;

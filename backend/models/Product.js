@@ -14,6 +14,16 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    description: {
+        type: String,
+        required: true,
+    },
+    images: [String],
+    isActive: {
+        type: Boolean,
+        default: true,
+      },
+    
     farmerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

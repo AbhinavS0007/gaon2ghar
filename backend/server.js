@@ -10,10 +10,10 @@ connectDB();
 const app = express();
 
 app.use(
-    cors({
-      origin: "*",
-    })
-  );
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
 
 // test route
