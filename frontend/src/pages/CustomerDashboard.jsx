@@ -7,6 +7,8 @@ function CustomerDashboard() {
     const [orders, setOrders] = useState({});
     const [myOrders, setMyOrders] = useState([]);
     const [imageIndexes, setImageIndexes] = useState({});
+    const [quantities, setQuantities] = useState({});
+
 
 
     const fetchProducts = async () => {
@@ -24,21 +26,21 @@ function CustomerDashboard() {
         fetchMyOrders();
     }, []);
 
-    const handleQuantityChange = (productId, value) => {
-        setOrders({ ...orders, [productId]: value });
-    };
+    // const handleQuantityChange = (productId, value) => {
+    //     setOrders({ ...orders, [productId]: value });
+    // };
 
-    const placeOrder = async (productId) => {
-        const quantity = orders[productId] || 1;
+    // const placeOrder = async (productId) => {
+    //     const quantity = orders[productId] || 1;
 
-        await api.post("/orders", {
-            productId,
-            quantity: Number(quantity),
-        });
+    //     await api.post("/orders", {
+    //         productId,
+    //         quantity: Number(quantity),
+    //     });
 
-        fetchProducts();
-        fetchMyOrders();
-    };
+    //     fetchProducts();
+    //     fetchMyOrders();
+    // };
 
     const getStatusColor = (status) => {
         if (status === "pending") return "bg-yellow-200 text-yellow-800";
@@ -63,6 +65,29 @@ function CustomerDashboard() {
         }));
     };
 
+    const handleQuantityChange = (productId, value) => {
+        setQuantities((prev) => ({
+            ...prev,
+            [productId]: Number(value),
+        }));
+    };
+
+
+    const addToCart = async (productId) => {
+        try {
+            const quantity = quantities[productId] || 1;
+
+            await api.post("/cart/add", {
+                productId,
+                quantity,
+            });
+
+            //   alert("Added to cart");
+        } catch (err) {
+            console.error(err.response?.data || err.message);
+            alert("Failed to add to cart");
+        }
+    };
 
     return (
         <Layout>
@@ -76,89 +101,61 @@ function CustomerDashboard() {
                     Available Products
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    {products && products.length > 0 ? (
-                        products.map((p) => (
-                            <div
-                                key={p._id}
-                                className="bg-white p-4 rounded shadow"
-                            >
-                                {/* Product Image */}
-                                {p.images && p.images.length > 0 && (
-                                    <div className="relative w-full h-40 mb-2">
-                                        <img
-                                            src={
-                                                p.images[
-                                                imageIndexes[p._id] || 0
-                                                ]
-                                            }
-                                            alt={p.name}
-                                            className="w-full h-full object-cover rounded"
-                                        />
-
-                                        {p.images.length > 1 && (
-                                            <>
-                                                {/* Left button */}
-                                                <button
-                                                    onClick={() =>
-                                                        prevImage(p._id, p.images.length)
-                                                    }
-                                                    className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white px-2 rounded"
-                                                >
-                                                    ‹
-                                                </button>
-
-                                                {/* Right button */}
-                                                <button
-                                                    onClick={() =>
-                                                        nextImage(p._id, p.images.length)
-                                                    }
-                                                    className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white px-2 rounded"
-                                                >
-                                                    ›
-                                                </button>
-                                            </>
-                                        )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {products.map((p) => (
+                        <div
+                            key={p._id}
+                            className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col"
+                        >
+                            {/* Image */}
+                            <div className="w-full h-48 bg-gray-100 overflow-hidden">
+                                {p.images && p.images.length > 0 ? (
+                                    <img
+                                        src={p.images[0]}
+                                        alt={p.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        No Image
                                     </div>
                                 )}
+                            </div>
 
-
-                                <h4 className="text-lg font-bold">{p.name}</h4>
-                                <p className="text-gray-600">₹{p.price}</p>
+                            {/* Content */}
+                            <div className="p-4 flex flex-col flex-grow">
+                                <h4 className="text-lg font-semibold">{p.name}</h4>
+                                <p className="text-green-700 font-bold text-lg">₹{p.price}</p>
                                 <p className="text-sm text-gray-500 mb-2">
                                     Stock: {p.quantity}
                                 </p>
 
-                                {p.description && (
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        {p.description}
-                                    </p>
-                                )}
+                                <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                                    {p.description}
+                                </p>
 
                                 <input
                                     type="number"
                                     min="1"
                                     placeholder="Qty"
-                                    className="border p-1 w-full mb-2 rounded"
+                                    className="border p-2 w-full mb-3 rounded"
                                     onChange={(e) =>
                                         handleQuantityChange(p._id, e.target.value)
                                     }
                                 />
 
+
                                 <button
-                                    onClick={() => placeOrder(p._id)}
-                                    className="bg-green-600 text-white w-full py-2 rounded"
+                                    onClick={() => addToCart(p._id)}
+                                    className="mt-auto bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium"
                                 >
-                                    Order
+                                    Add to Cart
                                 </button>
                             </div>
-                        ))
-                    ) : (
-                        <p className="text-gray-500 col-span-full text-center">
-                            No products available
-                        </p>
-                    )}
+                        </div>
+                    ))}
                 </div>
+
 
 
                 {/* My orders */}

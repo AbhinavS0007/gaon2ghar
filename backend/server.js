@@ -28,6 +28,9 @@ const productRoutes = require("./routes/productRoutes");
 app.use("/api/products", productRoutes);
 const orderRoutes = require("./routes/orderRoutes");
 app.use("/api/orders", orderRoutes);
+const cartRoutes = require("./routes/cartRoutes");
+app.use("/api/cart", cartRoutes);
+
 
 
 

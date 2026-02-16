@@ -25,6 +25,14 @@ function Layout({ children }) {
               Dashboard
             </Link>
           )}
+
+<button
+  onClick={() => navigate("/cart")}
+  className="bg-white text-green-700 px-4 py-1 rounded"
+>
+  Cart
+</button>
+
           <button
             onClick={logout}
             className="bg-white text-green-600 px-3 py-1 rounded"
