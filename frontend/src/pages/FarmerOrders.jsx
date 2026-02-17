@@ -1,125 +1,168 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import api from "../api/axios";
 import Layout from "../components/Layout";
 import { toast } from "react-hot-toast";
 
-function FarmerOrders() {
+const FarmerOrders = () => {
   const [orders, setOrders] = useState([]);
 
-  // fetch farmer orders
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
   const fetchOrders = async () => {
     try {
       const res = await api.get("/orders/farmer");
       setOrders(res.data.reverse());
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load orders");
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  // accept order
-  const acceptOrder = async (id) => {
+  const updateStatus = async (id, status) => {
     try {
-      await api.patch(`/orders/${id}/accept`);
-      toast.success("Order accepted");
+      await api.patch(`/orders/${id}/status`, { status });
+      toast.success("Order updated");
       fetchOrders();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to accept order");
+      toast.error("Update failed");
     }
   };
 
-  // reject order
-  const rejectOrder = async (id) => {
-    try {
-      await api.patch(`/orders/${id}/reject`);
-      toast.success("Order rejected");
-      fetchOrders();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to reject order");
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "accepted":
+        return "bg-blue-100 text-blue-800";
+      case "packed":
+        return "bg-purple-100 text-purple-800";
+      case "out_for_delivery":
+        return "bg-orange-100 text-orange-800";
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-6">
-          Incoming Orders
-        </h2>
+      <div className="bg-gray-100 min-h-screen p-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6">
+            Incoming Orders
+          </h2>
 
-        {orders.length === 0 ? (
-          <div className="bg-white p-6 rounded shadow text-center text-gray-500">
-            No orders yet
-          </div>
-        ) : (
-          orders.map((o) => (
-            <div
-              key={o._id}
-              className="bg-white p-4 mb-4 rounded shadow flex justify-between items-center"
-            >
-              {/* Order details */}
-              <div>
-                <h4 className="font-bold text-lg">
-                  {o.productId?.name}
-                </h4>
-
-                <p className="text-gray-600">
-                  Qty: {o.quantity}
-                </p>
-
-                <p className="text-gray-600">
-                  Customer: {o.customerId?.name}
-                </p>
-
-                <p className="text-gray-500 text-sm mt-1">
-                  Address: {o.address}
-                </p>
-
-                {/* Status badge */}
-                <span
-                  className={`inline-block mt-2 px-3 py-1 text-sm rounded ${
-                    o.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : o.status === "accepted"
-                      ? "bg-green-100 text-green-800"
-                      : o.status === "rejected"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {o.status}
-                </span>
-              </div>
-
-              {/* Action buttons */}
-              {o.status === "pending" && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => acceptOrder(o._id)}
-                    className="bg-green-600 text-white px-4 py-2 rounded"
-                  >
-                    Accept
-                  </button>
-
-                  <button
-                    onClick={() => rejectOrder(o._id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Reject
-                  </button>
-                </div>
-              )}
+          {orders.length === 0 ? (
+            <div className="bg-white p-6 rounded shadow text-center">
+              No incoming orders
             </div>
-          ))
-        )}
+          ) : (
+            orders.map((order) => (
+              <div
+                key={order._id}
+                className="bg-white p-5 rounded shadow mb-6"
+              >
+                {/* Order Info */}
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {order.productId?.name}
+                    </h3>
+
+                    <p className="text-sm text-gray-600">
+                      Qty: {order.quantity}
+                    </p>
+
+                    <p className="text-sm text-gray-600">
+                      Customer: {order.user?.name}
+                    </p>
+
+                    <p className="text-sm text-gray-600">
+                      Address: {order.address}
+                    </p>
+                  </div>
+
+                  {/* Status Badge */}
+                  <span
+                    className={`px-3 py-1 rounded text-sm font-semibold ${getStatusColor(
+                      order.status
+                    )}`}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+
+                {/* ACTION BUTTONS */}
+                <div className="mt-4 flex gap-3">
+
+                  {order.status === "pending" && (
+                    <>
+                      <button
+                        onClick={() =>
+                          updateStatus(order._id, "accepted")
+                        }
+                        className="bg-green-600 text-white px-4 py-2 rounded"
+                      >
+                        Accept
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          updateStatus(order._id, "rejected")
+                        }
+                        className="bg-red-600 text-white px-4 py-2 rounded"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
+
+                  {order.status === "accepted" && (
+                    <button
+                      onClick={() =>
+                        updateStatus(order._id, "packed")
+                      }
+                      className="bg-purple-600 text-white px-4 py-2 rounded"
+                    >
+                      Mark as Packed
+                    </button>
+                  )}
+
+                  {order.status === "packed" && (
+                    <button
+                      onClick={() =>
+                        updateStatus(order._id, "out_for_delivery")
+                      }
+                      className="bg-orange-600 text-white px-4 py-2 rounded"
+                    >
+                      Out for Delivery
+                    </button>
+                  )}
+
+                  {order.status === "out_for_delivery" && (
+                    <button
+                      onClick={() =>
+                        updateStatus(order._id, "delivered")
+                      }
+                      className="bg-green-700 text-white px-4 py-2 rounded"
+                    >
+                      Mark Delivered
+                    </button>
+                  )}
+
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </Layout>
   );
-}
+};
 
 export default FarmerOrders;

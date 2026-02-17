@@ -83,25 +83,55 @@ exports.rejectOrder = async (req, res) => {
       .populate("productId");
 
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({
+        message: "Order not found",
+      });
     }
 
-    // check farmer owns the product
+    // Check farmer owns this product
     if (
       order.productId.farmerId.toString() !==
       req.user._id.toString()
     ) {
-      return res.status(403).json({ message: "Not authorized" });
+      return res.status(403).json({
+        message: "Not authorized",
+      });
     }
 
+    // Prevent double rejection
+    if (order.status === "rejected") {
+      return res.status(400).json({
+        message: "Order already rejected",
+      });
+    }
+
+    // Restore stock
+    const product = await Product.findById(
+      order.productId._id
+    );
+
+    product.quantity += order.quantity;
+
+    // Reactivate product if needed
+    if (product.quantity > 0) {
+      product.isActive = true;
+    }
+
+    await product.save();
+
+    // Update order status
     order.status = "rejected";
     await order.save();
 
-    res.json(order);
+    res.json({
+      message: "Order rejected and stock restored",
+      order,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 exports.getFarmerOrders = async (req, res) => {
   try {
@@ -125,4 +155,113 @@ exports.getFarmerOrders = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "accepted",
+      "packed",
+      "out_for_delivery",
+      "delivered",
+      "rejected",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status",
+      });
+    }
+
+    const order = await Order.findById(req.params.id)
+      .populate("productId");
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    // Ensure farmer owns this product
+    if (
+      order.productId.farmerId.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    // Only allow rejection if still pending
+    if (
+      status === "rejected" &&
+      order.status !== "pending"
+    ) {
+      return res.status(400).json({
+        message: "Cannot reject now",
+      });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+
+exports.cancelOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.status !== "pending") {
+      return res.status(400).json({ message: "Cannot cancel this order" });
+    }
+
+    // Restore stock
+    const product = await Product.findById(order.productId);
+
+    if (product) {
+      product.quantity += order.quantity;
+      await product.save();
+    }
+
+    order.status = "cancelled";
+    await order.save();
+
+    res.json({ message: "Order cancelled successfully" });
+
+  } catch (error) {
+    console.error("Cancel Error:", error);
+    res.status(500).json({ message: "Cancel failed" });
+  }
+};
+
+
+exports.rateOrder = async (req, res) => {
+  const { rating, review } = req.body;
+
+  const order = await Order.findById(req.params.id);
+
+  if (!order) return res.status(404).json({ message: "Not found" });
+
+  if (order.status !== "delivered") {
+    return res.status(400).json({ message: "Cannot rate yet" });
+  }
+
+  order.rating = rating;
+  order.review = review;
+
+  await order.save();
+
+  res.json({ message: "Thanks for rating!" });
 };

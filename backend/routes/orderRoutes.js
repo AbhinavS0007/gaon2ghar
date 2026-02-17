@@ -7,6 +7,8 @@ const {
   updateOrderStatus,
   acceptOrder,
   rejectOrder,
+  cancelOrder,
+  rateOrder,
 } = require("../controllers/orderController");
 
 
@@ -21,8 +23,13 @@ router.post("/", protect, customerOnly, placeOrder);
 router.get("/my", protect, getMyOrders);
 router.get("/farmer", protect, farmerOnly, getFarmerOrders);
 
-router.patch("/:id/accept", protect, farmerOnly, acceptOrder);
-router.patch("/:id/reject", protect, farmerOnly, rejectOrder);
+router.patch("/:id/status", protect, farmerOnly, updateOrderStatus);
+
+router.patch("/:id/cancel", protect, customerOnly, cancelOrder);
+router.patch("/:id/rate", protect, customerOnly, rateOrder);
+
+
+
 
 
 module.exports = router;

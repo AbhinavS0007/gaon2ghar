@@ -22,9 +22,25 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "packed", "delivered"],
+      enum: [
+        "pending",
+        "accepted",
+        "packed",
+        "out_for_delivery",
+        "delivered",
+        "rejected",
+        "cancelled",
+      ],
       default: "pending",
     },
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    review: {
+      type: String,
+    },
+    
     address: {
       type: String,
       required: true,
