@@ -5,6 +5,7 @@ import FarmerDashboard from "./pages/FarmerDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
+import FarmerOrders from "./pages/FarmerOrders";
 
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
         <Route path="/customer" element={<CustomerDashboard />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/orders/my" element={<Orders />} />
+        <Route path="/farmer-orders" element={<FarmerOrders />} />
+
 
 
       </Routes>

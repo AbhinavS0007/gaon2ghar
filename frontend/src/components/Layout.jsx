@@ -33,14 +33,17 @@ function Layout({ children }) {
                         </Link>
                     )}
 
+                    {role === "farmer" && (
+                        <Link to="/farmer-orders" className="hover:underline">
+                            Orders
+                        </Link>
+                    )}
 
-
-                    <button
-                        onClick={() => navigate("/cart")}
-                        className="bg-white text-green-700 px-4 py-1 rounded"
-                    >
-                        Cart
-                    </button>
+                    {role === "customer" && (
+                        <Link to="/cart" className="hover:underline">
+                            Cart
+                        </Link>
+                    )}
 
                     <button
                         onClick={logout}
