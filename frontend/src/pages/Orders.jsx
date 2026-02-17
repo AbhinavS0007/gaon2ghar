@@ -9,7 +9,7 @@ const Orders = () => {
 
     const fetchMyOrders = async () => {
         const res = await api.get("/orders/my");
-        setMyOrders(res.data);
+        setMyOrders(res.data.reverse());
     };
     console.log(myOrders);
 

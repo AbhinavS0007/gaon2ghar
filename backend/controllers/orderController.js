@@ -50,3 +50,79 @@ exports.getMyOrders = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.acceptOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("productId");
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // check farmer owns the product
+    if (
+      order.productId.farmerId.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    order.status = "accepted";
+    await order.save();
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.rejectOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("productId");
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // check farmer owns the product
+    if (
+      order.productId.farmerId.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    order.status = "rejected";
+    await order.save();
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getFarmerOrders = async (req, res) => {
+  try {
+    const Product = require("../models/Product");
+
+    // get farmer's products
+    const products = await Product.find({
+      farmerId: req.user._id,
+    });
+
+    const productIds = products.map((p) => p._id);
+
+    // find orders for those products
+    const orders = await Order.find({
+      productId: { $in: productIds },
+    })
+      .populate("productId")
+      .populate("customerId");
+
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
