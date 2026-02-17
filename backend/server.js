@@ -30,6 +30,15 @@ const orderRoutes = require("./routes/orderRoutes");
 app.use("/api/orders", orderRoutes);
 const cartRoutes = require("./routes/cartRoutes");
 app.use("/api/cart", cartRoutes);
+const addressRoutes = require("./routes/addressRoutes");
+app.use("/api/address", addressRoutes);
+const deliveryZoneRoutes = require("./routes/deliveryZoneRoutes");
+
+app.use("/api/delivery-zones", deliveryZoneRoutes);
+
+
+
+
 
 
 

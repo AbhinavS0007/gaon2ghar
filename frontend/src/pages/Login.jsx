@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate, Link } from "react-router-dom";
+import { Toaster, toast } from "react-hot-toast";
 
 function Login() {
   const [form, setForm] = useState({
@@ -32,7 +33,8 @@ function Login() {
         navigate("/customer");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      console.log(err.response?.data?.message);
+      toast.error("Login Failed")
     }
   };
 

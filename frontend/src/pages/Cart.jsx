@@ -1,16 +1,82 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import Layout from "../components/Layout";
+import DeliverTo from "../components/DeliverTo";
+import AddressModal from "../components/AddressModal";
+import AddAddressForm from "../components/AddAddressForm";
+import { Toaster, toast } from "react-hot-toast";
+
 
 function Cart() {
     const [cart, setCart] = useState({ items: [] });
     const [loading, setLoading] = useState(true);
-    const [address, setAddress] = useState("");
+    // const [address, setAddress] = useState("");
+    const [addresses, setAddresses] = useState([]);
+    const [defaultAddress, setDefaultAddress] = useState(null);
+    const [addressView, setAddressView] = useState(null);
+
+    const [deliveryInfo, setDeliveryInfo] = useState({
+        deliverable: true,
+        deliveryCharge: 0,
+    });
+
+    // null | "list" | "form"
+
+    // TEMPORARY delivery zones (remove later)
+    // const deliveryZoneMap = {
+    //     "209206": 80,
+    //     "208025": 50,
+    //     "208012": 70,
+    //   };
+
+
+
+
+
+    const fetchAddresses = async () => {
+        try {
+            const res = await api.get("/address");
+            const data = res.data;
+
+            setAddresses(data);
+
+            const defaultAddr = data.find((a) => a.isDefault);
+            if (defaultAddr) {
+                setDefaultAddress(defaultAddr);
+            }
+        } catch (err) {
+            console.error("Error loading addresses", err);
+        }
+    };
+
+
+
+    const checkDelivery = async (pincode) => {
+        try {
+            const res = await api.get(`/delivery-zones/${pincode}`);
+            setDeliveryInfo(res.data);
+        } catch (err) {
+            console.error("Delivery check failed", err);
+            setDeliveryInfo({
+                deliverable: false,
+                deliveryCharge: 0,
+            });
+        }
+    };
 
 
     useEffect(() => {
         fetchCart();
+        fetchAddresses();
     }, []);
+
+    useEffect(() => {
+        if (defaultAddress?.pincode) {
+            checkDelivery(defaultAddress.pincode);
+        }
+    }, [defaultAddress]);
+
+
 
     const fetchCart = async () => {
         try {
@@ -23,11 +89,8 @@ function Cart() {
         }
     };
 
-    //   cart.items[0].product.quantity
-
 
     const updateQuantity = async (productId, quantity) => {
-        // Update UI instantly
         setCart((prevCart) => ({
             ...prevCart,
             items: prevCart.items.map((item) =>
@@ -48,6 +111,9 @@ function Cart() {
         }
     };
 
+    // console.log("this is cart", cart);
+
+
 
 
     const removeItem = async (productId) => {
@@ -56,36 +122,35 @@ function Cart() {
             setCart(res.data);
         } catch (err) {
             console.error(err);
-            alert("Failed to remove item");
+            toast.error("Failed to remove item");
         }
     };
 
-
-
-    //   const checkout = async () => {
-    //     try {
-    //       await api.post("/cart/checkout");
-    //       alert("Order placed successfully");
-    //       fetchCart();
-    //     } catch (err) {
-    //       console.log(err);
-    //       alert("Checkout failed");
-    //     }
-    //   };
-
     const checkout = async () => {
-        if (!address) {
-            alert("Please enter address");
+        if (!defaultAddress) {
+            toast.error("Please select address");
             return;
         }
 
+        if (cart.items.length === 0) {
+            toast.error("Please select Items");
+            return;
+        }
+
+
         try {
-            await api.post("/cart/checkout", { address });
-            alert("Order placed successfully");
+            await api.post("/cart/checkout", {
+                address: defaultAddress,
+                deliveryCharge: deliveryCharges,
+            });
+
+            toast.success("Order placed successfully");
             fetchCart();
         } catch (err) {
             console.log(err);
-            alert(err.response?.data?.message || "Checkout failed");
+            console.log(err.response?.data?.message);
+
+            toast.error("Checkout failed");
         }
     };
 
@@ -100,9 +165,12 @@ function Cart() {
         0
     );
 
-    const deliveryCharges = 100
+    const deliveryCharges = deliveryInfo.deliverable
+        ? deliveryInfo.deliveryCharge
+        : 0;
 
-    const totalAmount = totalProductValue + 100;
+    const totalAmount = totalProductValue + deliveryCharges;
+
 
     if (loading) {
         return <div className="p-6 text-center">Loading cart...</div>;
@@ -117,12 +185,10 @@ function Cart() {
                     <div className="md:col-span-2 space-y-4">
                         <h2 className="text-2xl font-bold mb-4">My Cart</h2>
 
-                        <textarea
-                            placeholder="Enter delivery address"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="w-full border p-2 rounded mt-4"
-                        ></textarea>
+                        <DeliverTo
+                            address={defaultAddress}
+                            onChange={() => setAddressView("list")}
+                        />
 
                         {cart.items.length === 0 ? (
                             <p className="text-gray-600">Cart is empty</p>
@@ -215,10 +281,17 @@ function Cart() {
                             <span>Total</span>
                             <span>₹{totalProductValue}</span>
                         </div>
-                        <div className="flex justify-between mb-2">
-                            <span>Delivery Charges</span>
-                            <span>₹{deliveryCharges}</span>
-                        </div>
+                        {deliveryInfo.deliverable ? (
+                            <div className="flex justify-between mb-2">
+                                <span>Delivery Charges</span>
+                                <span>₹{deliveryCharges}</span>
+                            </div>
+                        ) : (
+                            <div className="text-red-600 font-semibold mb-2">
+                                Not deliverable at this location
+                            </div>
+                        )}
+
 
                         <hr className="my-3" />
 
@@ -226,7 +299,7 @@ function Cart() {
                             <span>Amount</span>
                             <span>₹{totalAmount}</span>
                         </div>
-                        
+
 
 
 
@@ -234,13 +307,69 @@ function Cart() {
 
                         <button
                             onClick={checkout}
-                            className="bg-green-600 text-white w-full mt-6 py-3 rounded font-semibold"
+                            disabled={!deliveryInfo.deliverable}
+                            className={`w-full mt-6 py-3 rounded font-semibold text-white
+    ${deliveryInfo.deliverable
+                                    ? "bg-green-600"
+                                    : "bg-gray-400 cursor-not-allowed"}`}
                         >
-                            Place Order
+                            {deliveryInfo.deliverable
+                                ? "Place Order"
+                                : "Delivery Not Available"}
                         </button>
+
                     </div>
                 </div>
             </div>
+
+            {addressView === "list" && (
+                <AddressModal
+                    addresses={addresses}
+                    onSelect={async (addr) => {
+                        try {
+                            // update UI immediately
+                            setDefaultAddress(addr);
+
+                            // update database
+                            await api.put(`/address/default/${addr._id}`);
+
+                            // reload from DB
+                            await fetchAddresses();
+
+                            // close modal
+                            setAddressView(null);
+                        } catch (err) {
+                            console.error("Failed to set default address", err);
+                        }
+                    }}
+                    onAddNew={() => setAddressView("form")}
+                    onClose={() => setAddressView(null)}
+                />
+            )}
+
+
+
+
+
+            {addressView === "form" && (
+                <AddAddressForm
+                    onSave={async (data) => {
+                        try {
+                            await api.post("/address", data);
+
+                            // reload addresses from database
+                            await fetchAddresses();
+
+                            setAddressView(null);
+                        } catch (err) {
+                            console.error("Address save failed", err);
+                        }
+                    }}
+                    onCancel={() => setAddressView("list")}
+                />
+            )}
+
+
         </Layout>
     );
 }

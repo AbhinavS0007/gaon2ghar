@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import api from "../api/axios";
 import Layout from "../components/Layout";
+import { Toaster, toast } from "react-hot-toast";
 
 const Orders = () => {
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../api/axios";
 import Layout from "../components/Layout";
+import { Toaster, toast } from "react-hot-toast";
 
 function FarmerDashboard() {
     const [images, setImages] = useState([]);
@@ -40,7 +41,7 @@ function FarmerDashboard() {
             });
             fetchProducts();
         } catch (err) {
-            alert("Restock failed");
+            toast.error("Restock failed");
         }
     };
 
@@ -95,7 +96,7 @@ function FarmerDashboard() {
 
             fetchProducts();
         } catch (err) {
-            alert("Upload failed");
+            toast.error("Upload failed");
         }
     };
 

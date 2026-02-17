@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import Layout from "../components/Layout";
+import { Toaster, toast } from "react-hot-toast";
 
 function CustomerDashboard() {
     const [products, setProducts] = useState([]);
@@ -28,8 +29,6 @@ function CustomerDashboard() {
 
     
 
-
-
     const nextImage = (productId, total) => {
         setImageIndexes((prev) => ({
             ...prev,
@@ -56,10 +55,10 @@ function CustomerDashboard() {
                 quantity,
             });
 
-            //   alert("Added to cart");
+            toast.success("Added to cart");
         } catch (err) {
             console.error(err.response?.data || err.message);
-            alert("Failed to add to cart");
+            toast.error("Failed to add to cart");
         }
     };
 

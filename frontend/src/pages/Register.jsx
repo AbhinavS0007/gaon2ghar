@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate, Link } from "react-router-dom";
+import { Toaster, toast } from "react-hot-toast";
 
 function Register() {
   const [form, setForm] = useState({
@@ -20,10 +21,11 @@ function Register() {
     e.preventDefault();
     try {
       await api.post("/auth/register", form);
-      alert("Registered successfully");
+      toast.success("Registered successfully");
       navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      console.log(err.response?.data?.message);
+      toast.error("Something went wrong")
     }
   };
 
