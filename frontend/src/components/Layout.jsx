@@ -68,13 +68,20 @@ function Layout({ children }) {
 
             <main className="p-6">{children}</main>
             {role === "customer" && (
-                        <Link
-                            to="/ai"
-                            className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition"
-                        >
-                            🤖 AI Agent
-                        </Link>
-                    )}
+                <Link
+                    to="/ai"
+                    className="fixed bottom-8 right-8 bg-green-600 text-white 
+           px-5 py-3 rounded-full shadow-2xl 
+           hover:scale-105 hover:bg-green-700 
+           transition-all duration-300 
+           z-[9999]"
+
+                >
+                    <span className="animate-pulse">🤖</span>
+                    AI Agent
+                </Link>
+
+            )}
         </div>
     );
 }

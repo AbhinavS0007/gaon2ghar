@@ -184,7 +184,7 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    // Ensure farmer owns this product
+    // Check farmer ownership
     if (
       order.productId.farmerId.toString() !==
       req.user._id.toString()
@@ -194,24 +194,49 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    // Only allow rejection if still pending
+    // Prevent modifying finalized orders
     if (
-      status === "rejected" &&
-      order.status !== "pending"
+      ["delivered", "cancelled", "rejected"].includes(order.status)
     ) {
       return res.status(400).json({
-        message: "Cannot reject now",
+        message: "Order already finalized",
       });
+    }
+
+    // 🔥 RESTORE STOCK IF REJECTING
+    if (status === "rejected") {
+
+      if (order.status !== "pending") {
+        return res.status(400).json({
+          message: "Only pending orders can be rejected",
+        });
+      }
+
+      const product = await Product.findById(order.productId._id);
+
+      if (product) {
+        product.quantity += order.quantity;
+
+        // Reactivate if needed
+        if (product.quantity > 0) {
+          product.isActive = true;
+        }
+
+        await product.save();
+      }
     }
 
     order.status = status;
     await order.save();
 
     res.json(order);
+
   } catch (err) {
+    console.error("Update status error:", err);
     res.status(500).json({ message: err.message });
   }
 };
+
 
 
 

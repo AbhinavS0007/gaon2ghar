@@ -21,13 +21,13 @@ function CustomerDashboard() {
         const res = await api.get("/orders/my");
         setMyOrders(res.data);
     };
-    
+
     useEffect(() => {
         fetchProducts();
         fetchMyOrders();
     }, []);
 
-    
+
 
     const nextImage = (productId, total) => {
         setImageIndexes((prev) => ({
@@ -98,25 +98,17 @@ function CustomerDashboard() {
                             {/* Content */}
                             <div className="p-4 flex flex-col flex-grow bg-red-100">
                                 <div className="flex justify-between"> <h4 className="text-lg font-semibold">{p.name}</h4>
-                                <p className="text-green-700 font-bold text-lg">₹{p.price}/Kg</p></div>
-                                
+                                    <p className="text-green-700 font-bold text-lg">₹{p.price}/Kg</p></div>
+
                                 <p className="text-sm text-gray-500 mb-2">
-                                    Stock: {p.quantity}
+                                    Stock: {p.quantity} Kg
                                 </p>
 
                                 <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                                     {p.description}
                                 </p>
 
-                                {/* <input
-                                    type="number"
-                                    min="1"
-                                    placeholder="Qty"
-                                    className="border p-2 w-full mb-3 rounded"
-                                    onChange={(e) =>
-                                        handleQuantityChange(p._id, e.target.value)
-                                    }
-                                /> */}
+
 
 
                                 <button
@@ -132,7 +124,7 @@ function CustomerDashboard() {
 
 
 
-                
+
             </div>
         </Layout>
     );
