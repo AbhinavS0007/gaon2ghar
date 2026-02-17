@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 
+
 function Layout({ children }) {
     const navigate = useNavigate();
     const role = localStorage.getItem("role");
@@ -26,6 +27,17 @@ function Layout({ children }) {
                             Dashboard
                         </Link>
                     )}
+
+                    {role === "customer" && (
+                        <Link
+                            to="/ai"
+                            className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition"
+                        >
+                            🤖 AI Agent
+                        </Link>
+                    )}
+
+
 
                     {role === "customer" && (
                         <Link to="/orders/my" className="hover:underline">
@@ -55,6 +67,14 @@ function Layout({ children }) {
             </header>
 
             <main className="p-6">{children}</main>
+            {role === "customer" && (
+                        <Link
+                            to="/ai"
+                            className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition"
+                        >
+                            🤖 AI Agent
+                        </Link>
+                    )}
         </div>
     );
 }

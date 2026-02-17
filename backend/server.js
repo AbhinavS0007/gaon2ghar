@@ -37,7 +37,9 @@ const deliveryZoneRoutes = require("./routes/deliveryZoneRoutes");
 app.use("/api/delivery-zones", deliveryZoneRoutes);
 
 
+const aiRoutes = require("./routes/aiRoutes.js");
 
+app.use("/api/ai", aiRoutes);
 
 
 

@@ -20,16 +20,6 @@ function Cart() {
         deliveryCharge: 0,
     });
 
-    // null | "list" | "form"
-
-    // TEMPORARY delivery zones (remove later)
-    // const deliveryZoneMap = {
-    //     "209206": 80,
-    //     "208025": 50,
-    //     "208012": 70,
-    //   };
-
-
 
 
 
