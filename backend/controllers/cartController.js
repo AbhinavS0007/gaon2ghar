@@ -77,118 +77,136 @@ exports.getCart = async (req, res) => {
 
 exports.updateCart = async (req, res) => {
     try {
-      const { productId, quantity } = req.body;
-  
-      const cart = await Cart.findOne({ user: req.user.id });
-  
-      if (!cart) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-  
-      const item = cart.items.find(
-        (i) => i.product.toString() === productId
-      );
-  
-      if (!item) {
-        return res.status(404).json({ message: "Item not in cart" });
-      }
-  
-      item.quantity = quantity;
-      await cart.save();
-  
-      res.json({ message: "Cart updated", cart });
+        const { productId, quantity } = req.body;
+
+        const cart = await Cart.findOne({ user: req.user.id });
+
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
+
+        const item = cart.items.find(
+            (i) => i.product.toString() === productId
+        );
+
+        if (!item) {
+            return res.status(404).json({ message: "Item not in cart" });
+        }
+
+        item.quantity = quantity;
+        await cart.save();
+
+        res.json({ message: "Cart updated", cart });
     } catch (err) {
-      res.status(500).json({ message: err.message });
+        res.status(500).json({ message: err.message });
     }
-  };
-  
+};
 
 
-  exports.removeFromCart = async (req, res) => {
+
+exports.removeFromCart = async (req, res) => {
     try {
-      const { productId } = req.params;
-  
-      const cart = await Cart.findOne({ user: req.user._id });
-  
-      cart.items = cart.items.filter(
-        (item) => item.product.toString() !== productId
-      );
-  
-      await cart.save();
-  
-      const updatedCart = await Cart.findOne({ user: req.user._id })
-        .populate("items.product");
-  
-      res.json(updatedCart);
+        const { productId } = req.params;
+
+        const cart = await Cart.findOne({ user: req.user._id });
+
+        cart.items = cart.items.filter(
+            (item) => item.product.toString() !== productId
+        );
+
+        await cart.save();
+
+        const updatedCart = await Cart.findOne({ user: req.user._id })
+            .populate("items.product");
+
+        res.json(updatedCart);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
-  };
-  
+};
 
-  
-  const Order = require("../models/Order");
-  const Product = require("../models/Product");
-  
-  exports.checkout = async (req, res) => {
+
+
+const Order = require("../models/Order");
+const Product = require("../models/Product");
+
+exports.checkout = async (req, res) => {
     try {
-      const cart = await Cart.findOne({ user: req.user._id })
-        .populate("items.product");
-  
-      if (!cart || cart.items.length === 0) {
-        return res.status(400).json({ message: "Cart is empty" });
-      }
-  
-      const orders = [];
-  
-      for (const item of cart.items) {
-        const product = await Product.findById(item.product._id);
-  
-        if (!product || !product.isActive) {
-          return res.status(400).json({
-            message: `${item.product.name} is not available`,
-          });
+        const { address, location} = req.body;
+
+        if (!address) {
+            return res.status(400).json({ message: "Address required" });
         }
-  
-        if (product.quantity < item.quantity) {
-          return res.status(400).json({
-            message: `Not enough stock for ${product.name}`,
-          });
+
+        const cart = await Cart.findOne({ user: req.user._id })
+            .populate("items.product");
+
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ message: "Cart is empty" });
         }
-  
-        // reduce stock
-        product.quantity -= item.quantity;
-  
-        // deactivate if stock zero
-        if (product.quantity <= 0) {
-          product.quantity = 0;
-          product.isActive = false;
+
+        const orders = [];
+
+        for (const item of cart.items) {
+            const product = await Product.findById(item.product._id);
+
+            if (!product || !product.isActive) {
+                return res.status(400).json({
+                    message: `${item.product.name} is not available`,
+                });
+            }
+
+            if (product.quantity < item.quantity) {
+                return res.status(400).json({
+                    message: `Not enough stock for ${product.name}`,
+                });
+            }
+
+            // reduce stock
+            product.quantity -= item.quantity;
+
+            // deactivate if stock zero
+            if (product.quantity <= 0) {
+                product.quantity = 0;
+                product.isActive = false;
+            }
+
+            await product.save();
+
+            // create order
+            // const order = await Order.create({
+            //     customerId: req.user._id,
+            //     productId: product._id,
+            //     quantity: item.quantity,
+            //     totalPrice: item.quantity * product.price,
+            //     status: "pending",
+            // });
+
+            const order = await Order.create({
+                customerId: req.user._id,
+                productId: product._id,
+                quantity: item.quantity,
+                totalPrice: item.quantity * product.price,
+                status: "pending",
+                address, // store coordinates
+                paymentMethod: "COD",
+                paymentStatus: "pending",
+              });
+              
+              
+
+            orders.push(order);
         }
-  
-        await product.save();
-  
-        // create order
-        const order = await Order.create({
-          customerId: req.user._id,
-          productId: product._id,
-          quantity: item.quantity,
-          totalPrice: item.quantity * product.price,
-          status: "pending",
+
+        // clear cart
+        cart.items = [];
+        await cart.save();
+
+        res.json({
+            message: "Order placed successfully",
+            orders,
         });
-  
-        orders.push(order);
-      }
-  
-      // clear cart
-      cart.items = [];
-      await cart.save();
-  
-      res.json({
-        message: "Order placed successfully",
-        orders,
-      });
     } catch (err) {
-      res.status(500).json({ message: err.message });
+        res.status(500).json({ message: err.message });
     }
-  };
-  
+};
