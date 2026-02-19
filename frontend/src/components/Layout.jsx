@@ -3,7 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Layout({ children }) {
     const navigate = useNavigate();
-    const role = localStorage.getItem("role");
+    // const role = localStorage.getItem("role");
+    
+    const role = JSON.parse(localStorage.getItem("user")).role;
+    // console.log(user.role);
 
     const logout = () => {
         localStorage.clear();

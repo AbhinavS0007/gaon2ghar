@@ -17,65 +17,70 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.phone || !form.password) {
+      toast.error("All fields are required");
+      return;
+    }
+
     try {
       const res = await api.post("/auth/login", form);
 
       const { token, user } = res.data;
 
-      // store token
       localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // redirect based on role
-      if (user.role === "farmer") {
-        navigate("/farmer");
-      } else {
-        navigate("/customer");
-      }
+      toast.success("Login successful");
+
+      navigate(`/${user.role}`);
     } catch (err) {
-      console.log(err.response?.data?.message);
-      toast.error("Login Failed")
+      toast.error(err.response?.data?.message || "Login Failed");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-  <form
-    onSubmit={handleSubmit}
-    className="bg-white p-6 rounded shadow-md w-80"
-  >
-    <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+      <Toaster position="top-center" />
 
-    <input
-      name="phone"
-      placeholder="Phone"
-      onChange={handleChange}
-      className="w-full border p-2 mb-3"
-    />
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded shadow-md w-80"
+      >
+        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
-    <input
-      name="password"
-      type="password"
-      placeholder="Password"
-      onChange={handleChange}
-      className="w-full border p-2 mb-3"
-    />
+        <input
+          name="phone"
+          value={form.phone}
+          placeholder="Phone"
+          onChange={handleChange}
+          className="w-full border p-2 mb-3 rounded"
+        />
 
-    <button
-      type="submit"
-      className="w-full bg-green-600 text-white p-2 rounded"
-    >
-      Login
-    </button>
+        <input
+          name="password"
+          value={form.password}
+          type="password"
+          placeholder="Password"
+          onChange={handleChange}
+          className="w-full border p-2 mb-3 rounded"
+        />
 
-    <p className="text-center mt-3">
-      <Link to="/register" className="text-green-600">
-        Register
-      </Link>
-    </p>
-  </form>
-</div>
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        >
+          Login
+        </button>
 
+        <p className="text-center mt-3">
+          Don’t have an account?{" "}
+          <Link to="/register" className="text-green-600 font-medium">
+            Register
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }
 
