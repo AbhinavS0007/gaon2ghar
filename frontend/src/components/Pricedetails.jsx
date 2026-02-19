@@ -6,12 +6,12 @@ import { toast } from "react-hot-toast";
 import DeliveryCharges from './DeliveryCharges';
 
 
-const Pricedetails = ({ defaultAddress }) => {
+const Pricedetails = ({ defaultAddress,cart }) => {
 
     const [deliveryMethod, setDeliveryMethod] = useState("null");
 
 
-    const [cart, setCart] = useState({ items: [] });
+    // const [cart, setCart] = useState({ items: [] });
     // const [loading, setLoading] = useState(true);
     // const [addresses, setAddresses] = useState([]);
     // const [defaultAddress, setDefaultAddress] = useState(null);
@@ -24,21 +24,21 @@ const Pricedetails = ({ defaultAddress }) => {
 
 
 
-    const fetchAddresses = async () => {
-        try {
-            const res = await api.get("/address");
-            const data = res.data;
+    // const fetchAddresses = async () => {
+    //     try {
+    //         const res = await api.get("/address");
+    //         const data = res.data;
 
-            setAddresses(data);
+    //         // setAddresses(data);
 
-            const defaultAddr = data.find((a) => a.isDefault);
-            if (defaultAddr) {
-                setDefaultAddress(defaultAddr);
-            }
-        } catch (err) {
-            console.error("Error loading addresses", err);
-        }
-    };
+    //         const defaultAddr = data.find((a) => a.isDefault);
+    //         if (defaultAddr) {
+    //             // setDefaultAddress(defaultAddr);
+    //         }
+    //     } catch (err) {
+    //         console.error("Error loading addresses", err);
+    //     }
+    // };
 
 
 
@@ -46,6 +46,8 @@ const Pricedetails = ({ defaultAddress }) => {
         try {
             const res = await api.get(`/delivery-zones/${pincode}`);
             setDeliveryInfo(res.data);
+            console.log(res.data);
+            
         } catch (err) {
             console.error("Delivery check failed", err);
             setDeliveryInfo({
@@ -54,12 +56,14 @@ const Pricedetails = ({ defaultAddress }) => {
             });
         }
     };
+    console.log(defaultAddress?.pincode);
+    
 
 
-    useEffect(() => {
-        fetchCart();
-        fetchAddresses();
-    }, []);
+    // useEffect(() => {
+    //     // fetchCart();
+    //     fetchAddresses();
+    // }, []);
 
     useEffect(() => {
         if (defaultAddress?.pincode) {
@@ -69,16 +73,16 @@ const Pricedetails = ({ defaultAddress }) => {
 
 
 
-    const fetchCart = async () => {
-        try {
-            const res = await api.get("/cart");
-            setCart(res.data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const fetchCart = async () => {
+    //     try {
+    //         const res = await api.get("/cart");
+    //         setCart(res.data);
+    //     } catch (err) {
+    //         console.error(err);
+    //     } finally {
+    //         // setLoading(false);
+    //     }
+    // };
 
 
 
@@ -100,8 +104,6 @@ const Pricedetails = ({ defaultAddress }) => {
                 address: defaultAddress,
                 deliveryCharge: deliveryCharges,
                 deliveryMethod: deliveryMethod,
-                // address: defaultAddress,
-                // deliveryCharge: deliveryCharges,
             });
 
             toast.success("Order placed successfully");
@@ -140,12 +142,6 @@ const Pricedetails = ({ defaultAddress }) => {
 
     const totalAmount = totalProductValue + deliveryCharges;
 
-    // console.log(deliveryInfo.deliverable);
-
-
-    // if (loading) {
-    //     return <div className="p-6 text-center">Loading Pricedetails...</div>;
-    // }
     return (
         <>
 

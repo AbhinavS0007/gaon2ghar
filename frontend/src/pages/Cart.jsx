@@ -181,6 +181,7 @@ function Cart() {
                     {/* Price Summary */}
                     <Pricedetails
     defaultAddress={defaultAddress}
+    cart={cart}
 />
                 </div>
             </div>
