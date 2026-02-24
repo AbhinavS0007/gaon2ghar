@@ -1,92 +1,151 @@
 import { Link, useNavigate } from "react-router-dom";
-
+import { useState } from "react";
 
 function Layout({ children }) {
-    const navigate = useNavigate();
-    // const role = localStorage.getItem("role");
-    
-    const role = JSON.parse(localStorage.getItem("user")).role;
-    // console.log(user.role);
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-    const logout = () => {
-        localStorage.clear();
-        navigate("/");
-    };
+  const user = JSON.parse(localStorage.getItem("user"));
+  const role = user?.role;
 
-    return (
-        <div className="min-h-screen bg-gray-100">
-            <header className="bg-green-600 text-white px-6 py-4 flex justify-between items-center">
-                <h1 className="text-xl font-bold">Farmer Marketplace</h1>
+  const logout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
 
-                <div className="space-x-4">
-                    {role === "farmer" && (
-                        <Link to="/farmer" className="hover:underline">
-                            Dashboard
-                        </Link>
-                    )}
+  return (
+    <div className="min-h-screen bg-gray-100">
+      
+      {/* HEADER */}
+      <header className="bg-green-600 text-white px-4 py-4 flex justify-between items-center shadow-md">
+        <h1 className="text-lg font-bold">🌾 Gaon2Ghar</h1>
 
-                    {role === "customer" && (
-                        <Link to="/customer" className="hover:underline">
-                            Dashboard
-                        </Link>
-                    )}
+        {/* Hamburger for mobile */}
+        <button
+          className="md:hidden text-2xl"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          ☰
+        </button>
 
-                    {role === "customer" && (
-                        <Link
-                            to="/ai"
-                            className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition"
-                        >
-                            🤖 AI Agent
-                        </Link>
-                    )}
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-6 font-medium">
+          {role === "customer" && (
+            <>
+              <Link to="/customer">Dashboard</Link>
+              <Link to="/orders/my">My Orders</Link>
+              <Link to="/cart">Cart</Link>
+              <Link
+                to="/ai"
+                className="bg-white text-green-600 px-3 py-1 rounded-lg"
+              >
+                🤖 AI
+              </Link>
+            </>
+          )}
 
+          {role === "farmer" && (
+            <>
+              <Link to="/farmer">Dashboard</Link>
+              <Link to="/farmer-orders">Orders</Link>
+            </>
+          )}
 
-
-                    {role === "customer" && (
-                        <Link to="/orders/my" className="hover:underline">
-                            My Orders
-                        </Link>
-                    )}
-
-                    {role === "farmer" && (
-                        <Link to="/farmer-orders" className="hover:underline">
-                            Orders
-                        </Link>
-                    )}
-
-                    {role === "customer" && (
-                        <Link to="/cart" className="hover:underline">
-                            Cart
-                        </Link>
-                    )}
-
-                    <button
-                        onClick={logout}
-                        className="bg-white text-green-600 px-3 py-1 rounded"
-                    >
-                        Logout
-                    </button>
-                </div>
-            </header>
-
-            <main className="p-6">{children}</main>
-            {role === "customer" && (
-                <Link
-                    to="/ai"
-                    className="fixed bottom-8 right-8 bg-green-600 text-white 
-           px-5 py-3 rounded-full shadow-2xl 
-           hover:scale-105 hover:bg-green-700 
-           transition-all duration-300 
-           z-[9999]"
-
-                >
-                    <span className="animate-pulse">🤖</span>
-                    AI Agent
-                </Link>
-
-            )}
+          <button
+            onClick={logout}
+            className="bg-white text-green-600 px-3 py-1 rounded-lg"
+          >
+            Logout
+          </button>
         </div>
-    );
+      </header>
+
+      {/* MOBILE DROPDOWN MENU */}
+      {menuOpen && (
+        <div className="md:hidden bg-white shadow-lg px-6 py-6 space-y-5 text-gray-800 font-medium">
+          
+          {role === "customer" && (
+            <>
+              <Link
+                to="/customer"
+                className="block text-lg"
+                onClick={() => setMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+
+              <Link
+                to="/orders/my"
+                className="block text-lg"
+                onClick={() => setMenuOpen(false)}
+              >
+                My Orders
+              </Link>
+
+              <Link
+                to="/cart"
+                className="block text-lg"
+                onClick={() => setMenuOpen(false)}
+              >
+                Cart
+              </Link>
+
+              <Link
+                to="/ai"
+                className="block text-lg text-green-600"
+                onClick={() => setMenuOpen(false)}
+              >
+                🤖 AI Agent
+              </Link>
+            </>
+          )}
+
+          {role === "farmer" && (
+            <>
+              <Link
+                to="/farmer"
+                className="block text-lg"
+                onClick={() => setMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+
+              <Link
+                to="/farmer-orders"
+                className="block text-lg"
+                onClick={() => setMenuOpen(false)}
+              >
+                Orders
+              </Link>
+            </>
+          )}
+
+          <button
+            onClick={logout}
+            className="block text-lg text-red-500"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+
+      {/* CONTENT */}
+      <main className="p-4 md:p-8">{children}</main>
+
+      {/* Floating AI Button Only Mobile */}
+      {role === "customer" && (
+        <Link
+          to="/ai"
+          className="md:hidden fixed bottom-6 right-6 bg-green-600 text-white 
+                     w-14 h-14 flex items-center justify-center
+                     rounded-full shadow-xl 
+                     hover:bg-green-700 transition"
+        >
+          🤖
+        </Link>
+      )}
+    </div>
+  );
 }
 
 export default Layout;

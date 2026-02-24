@@ -25,11 +25,41 @@ function SelectRole() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <h2 className="text-2xl mb-6">Select Your Role</h2>
-      <div className="flex gap-4">
-        <button onClick={() => chooseRole("customer")}>Customer</button>
-        <button onClick={() => chooseRole("farmer")}>Farmer</button>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center px-4">
+      
+      <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-md text-center">
+        
+        <h2 className="text-3xl font-bold text-gray-800 mb-3">
+          Choose Your Role
+        </h2>
+        <p className="text-gray-500 mb-8">
+          Please select how you want to use Gaon2Ghar
+        </p>
+
+        <div className="space-y-4">
+
+
+          <button
+            onClick={() => chooseRole("customer")}
+            className="w-full py-3 rounded-xl bg-green-600 text-white font-semibold text-lg 
+                       hover:bg-green-700 transition duration-300 
+                       shadow-md hover:shadow-xl transform hover:-translate-y-1"
+          >
+            🛒 Continue as Customer
+          </button>
+
+
+          <button
+            onClick={() => chooseRole("farmer")}
+            className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold text-lg 
+                       hover:bg-blue-700 transition duration-300 
+                       shadow-md hover:shadow-xl transform hover:-translate-y-1"
+          >
+            🌾 Continue as Farmer
+          </button>
+
+        </div>
+
       </div>
     </div>
   );
