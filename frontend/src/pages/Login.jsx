@@ -5,7 +5,7 @@ import { Toaster, toast } from "react-hot-toast";
 
 function Login() {
   const [form, setForm] = useState({
-    phone: "",
+    email: "",
     password: "",
   });
 
@@ -18,7 +18,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.phone || !form.password) {
+    if (!form.email || !form.password) {
       toast.error("All fields are required");
       return;
     }
@@ -31,8 +31,9 @@ function Login() {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      toast.success("Login successful");
+      toast.success("Login successful 🎉");
 
+      // Redirect based on role
       navigate(`/${user.role}`);
     } catch (err) {
       toast.error(err.response?.data?.message || "Login Failed");
@@ -50,9 +51,10 @@ function Login() {
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
         <input
-          name="phone"
-          value={form.phone}
-          placeholder="Phone"
+          name="email"
+          type="email"
+          value={form.email}
+          placeholder="Email"
           onChange={handleChange}
           className="w-full border p-2 mb-3 rounded"
         />

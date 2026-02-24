@@ -9,7 +9,7 @@ function Register() {
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
+    email: "",
     password: "",
     role: "",
   });
@@ -20,28 +20,42 @@ function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // STEP 1: SEND OTP
+  // ===============================
+  // STEP 1: SEND OTP TO EMAIL
+  // ===============================
   const handleSendOtp = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.phone || !form.password || !form.role) {
+    if (!form.name || !form.email || !form.password || !form.role) {
       toast.error("All fields are required");
+      return;
+    }
+
+    if (!form.email.includes("@")) {
+      toast.error("Enter a valid email");
+      return;
+    }
+
+    if (form.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
     try {
       await api.post("/auth/register-send-otp", {
-        phone: form.phone,
+        email: form.email,
       });
 
-      toast.success("OTP sent to your phone");
+      toast.success("OTP sent to your email");
       setStep(2);
     } catch (err) {
       toast.error(err.response?.data?.message || "Error sending OTP");
     }
   };
 
+  // ===============================
   // STEP 2: VERIFY OTP + REGISTER
+  // ===============================
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
 
@@ -56,13 +70,15 @@ function Register() {
         otp,
       });
 
-      toast.success("Registration successful");
+      toast.success("Registration successful 🎉");
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      navigate(`/`);
-    //   navigate(`/${form.role}`);
+      // Optional: Redirect based on role
+      // navigate(`/${form.role}`);
+
+      navigate("/");
     } catch (err) {
       toast.error(err.response?.data?.message || "Invalid OTP");
     }
@@ -88,17 +104,18 @@ function Register() {
             />
 
             <input
-              name="phone"
-              value={form.phone}
-              placeholder="Phone"
+              name="email"
+              type="email"
+              value={form.email}
+              placeholder="Email"
               onChange={handleChange}
               className="w-full border p-2 mb-3 rounded"
             />
 
             <input
               name="password"
-              value={form.password}
               type="password"
+              value={form.password}
               placeholder="Password"
               onChange={handleChange}
               className="w-full border p-2 mb-3 rounded"

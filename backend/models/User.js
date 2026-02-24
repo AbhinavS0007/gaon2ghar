@@ -4,21 +4,27 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
     },
-    phone: {
-      type: Number,
+    email: {
+      type: String,
       required: true,
       unique: true,
+      lowercase: true,
     },
     password: {
       type: String,
-      required: true,
     },
     role: {
       type: String,
       enum: ["farmer", "customer"],
-      required: true,
+    },
+
+    // OTP fields
+    otp: String,
+    otpExpires: Date,
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
