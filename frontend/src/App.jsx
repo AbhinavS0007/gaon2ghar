@@ -7,6 +7,7 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import FarmerOrders from "./pages/FarmerOrders";
 import AIAgent from "./components/AIAgent";
+import SelectRole from "./pages/SelectRole";
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/orders/my" element={<Orders />} />
         <Route path="/farmer-orders" element={<FarmerOrders />} />
         <Route path="/ai" element={<AIAgent />} />
+        <Route path="/select-role" element={<SelectRole />} />
 
 
 

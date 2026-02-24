@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
+const { OAuth2Client } = require("google-auth-library");
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ================= SEND OTP =================
 exports.registerSendOtp = async (req, res) => {
@@ -139,3 +141,101 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
+
+exports.googleLogin = async (req, res) => {
+    try {
+      const { token } = req.body;
+  
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+  
+      const payload = ticket.getPayload();
+      const { email, name, sub } = payload;
+  
+      // 1️⃣ Check by googleId
+      let user = await User.findOne({ googleId: sub });
+  
+      if (user) {
+        if (!user.role) {
+          return res.json({
+            needsRole: true,
+            tempUserId: user._id,
+          });
+        }
+  
+        const jwtToken = jwt.sign(
+          { id: user._id, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "7d" }
+        );
+  
+        return res.json({ token: jwtToken, user });
+      }
+  
+      // 2️⃣ Check if email already exists
+      user = await User.findOne({ email });
+  
+      if (user) {
+        user.googleId = sub;
+        await user.save();
+  
+        const jwtToken = jwt.sign(
+          { id: user._id, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "7d" }
+        );
+  
+        return res.json({ token: jwtToken, user });
+      }
+  
+      // 3️⃣ Completely new user
+      user = await User.create({
+        name,
+        email,
+        googleId: sub,
+        isVerified: true,
+      });
+  
+      return res.json({
+        needsRole: true,
+        tempUserId: user._id,
+      });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Google login failed" });
+    }
+  };
+
+  exports.setRole = async (req, res) => {
+    try {
+      const { userId, role } = req.body;
+  
+      if (!["farmer", "customer"].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+  
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+  
+      user.role = role;
+      await user.save();
+  
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+  
+      res.json({ token, user });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to set role" });
+    }
+  };

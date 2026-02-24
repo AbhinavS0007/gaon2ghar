@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate, Link } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
+import { GoogleLogin } from "@react-oauth/google";
 
 function Login() {
   const [form, setForm] = useState({
@@ -68,12 +69,39 @@ function Login() {
           className="w-full border p-2 mb-3 rounded"
         />
 
+        
+
         <button
           type="submit"
           className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
         >
           Login
         </button>
+
+        <GoogleLogin
+  onSuccess={async (credentialResponse) => {
+    try {
+      const res = await api.post("/auth/google-login", {
+        token: credentialResponse.credential,
+      });
+
+      if (res.data.needsRole) {
+        localStorage.setItem("tempUserId", res.data.tempUserId);
+        navigate("/select-role");
+        return;
+      }
+
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      navigate(`/${res.data.user.role}`);
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error("Google login failed");
+    }
+  }}
+  onError={() => toast.error("Google Login Failed")}
+/>
 
         <p className="text-center mt-3">
           Don’t have an account?{" "}
