@@ -61,7 +61,7 @@ const Pricedetails = ({ defaultAddress, cart }) => {
             });
 
             toast.success("Order placed successfully");
-            fetchCart();
+            // fetchCart();
         } catch (err) {
             console.log(err);
             console.log(err.response?.data?.message);
