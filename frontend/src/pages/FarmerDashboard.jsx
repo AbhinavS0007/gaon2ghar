@@ -71,6 +71,25 @@ function FarmerDashboard() {
         );
         setPreviews(updatedPreviews);
     };
+    const deleteProduct = async (id) => {
+        try {
+          const token = localStorage.getItem("token");
+      
+          await api.delete(`/products/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          toast.success("Product deleted successfully");
+      
+          setProducts((prev) => prev.filter((p) => p._id !== id));
+      
+        } catch (error) {
+          console.error(error);
+          toast.error(error.response?.data?.message || "Failed to delete product");
+        }
+      };
 
 
 

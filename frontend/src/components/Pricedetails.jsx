@@ -6,15 +6,9 @@ import { toast } from "react-hot-toast";
 import DeliveryCharges from './DeliveryCharges';
 
 
-const Pricedetails = ({ defaultAddress,cart }) => {
+const Pricedetails = ({ defaultAddress, cart }) => {
 
-    const [deliveryMethod, setDeliveryMethod] = useState("null");
-
-
-    // const [cart, setCart] = useState({ items: [] });
-    // const [loading, setLoading] = useState(true);
-    // const [addresses, setAddresses] = useState([]);
-    // const [defaultAddress, setDefaultAddress] = useState(null);
+    const [deliveryMethod, setDeliveryMethod] = useState("");
 
     const [deliveryInfo, setDeliveryInfo] = useState({
         deliverable: true,
@@ -22,32 +16,12 @@ const Pricedetails = ({ defaultAddress,cart }) => {
     });
 
 
-
-
-    // const fetchAddresses = async () => {
-    //     try {
-    //         const res = await api.get("/address");
-    //         const data = res.data;
-
-    //         // setAddresses(data);
-
-    //         const defaultAddr = data.find((a) => a.isDefault);
-    //         if (defaultAddr) {
-    //             // setDefaultAddress(defaultAddr);
-    //         }
-    //     } catch (err) {
-    //         console.error("Error loading addresses", err);
-    //     }
-    // };
-
-
-
     const checkDelivery = async (pincode) => {
         try {
             const res = await api.get(`/delivery-zones/${pincode}`);
             setDeliveryInfo(res.data);
             console.log(res.data);
-            
+
         } catch (err) {
             console.error("Delivery check failed", err);
             setDeliveryInfo({
@@ -57,13 +31,7 @@ const Pricedetails = ({ defaultAddress,cart }) => {
         }
     };
     console.log(defaultAddress?.pincode);
-    
 
-
-    // useEffect(() => {
-    //     // fetchCart();
-    //     fetchAddresses();
-    // }, []);
 
     useEffect(() => {
         if (defaultAddress?.pincode) {
@@ -72,23 +40,9 @@ const Pricedetails = ({ defaultAddress,cart }) => {
     }, [defaultAddress]);
 
 
-
-    // const fetchCart = async () => {
-    //     try {
-    //         const res = await api.get("/cart");
-    //         setCart(res.data);
-    //     } catch (err) {
-    //         console.error(err);
-    //     } finally {
-    //         // setLoading(false);
-    //     }
-    // };
-
-
-
-
     const checkout = async () => {
-        if (!defaultAddress) {
+
+        if (deliveryMethod !== "pickup" && !defaultAddress) {
             toast.error("Please select address");
             return;
         }
@@ -118,9 +72,6 @@ const Pricedetails = ({ defaultAddress,cart }) => {
 
 
 
-
-
-
     const totalProductValue = cart.items.reduce(
         (sum, item) =>
             sum + (item.product?.price || 0) * item.quantity,
@@ -132,6 +83,7 @@ const Pricedetails = ({ defaultAddress,cart }) => {
     if (totalProductValue > 0) {
         if (deliveryMethod === "pickup") {
             deliveryCharges = 0;
+
         } else {
             deliveryCharges = deliveryInfo.deliverable
                 ? deliveryInfo.deliveryCharge
@@ -155,7 +107,12 @@ const Pricedetails = ({ defaultAddress,cart }) => {
                     <span>Total</span>
                     <span>₹{totalProductValue}</span>
                 </div>
-                {deliveryInfo.deliverable ? (
+
+                {deliveryMethod === "pickup" ? (
+                    <div className="mb-2 text-green-600 font-semibold">
+                        🚜 You are picking up from farmer house
+                    </div>
+                ) : deliveryInfo.deliverable ? (
                     <div className="flex justify-between mb-2">
                         <span>Delivery Charges</span>
                         <span>₹{deliveryCharges}</span>
@@ -165,6 +122,7 @@ const Pricedetails = ({ defaultAddress,cart }) => {
                         Not deliverable at this location
                     </div>
                 )}
+
 
 
                 <hr className="my-3" />
@@ -203,11 +161,21 @@ const Pricedetails = ({ defaultAddress,cart }) => {
                             name="delivery_method"
                             value="pickup"
                             checked={deliveryMethod === "pickup"}
-                            onChange={(e) => setDeliveryMethod(e.target.value)}
+                            onClick={() =>
+                                setDeliveryMethod(
+                                    deliveryMethod === "pickup" ? "" : "pickup"
+                                )
+                            }
                         />
                         <label htmlFor="pickup" className="ml-2">
                             Pickup from farmer house
                         </label>
+                        {deliveryMethod === "pickup" && (
+                            <div className="mt-3 text-sm bg-green-50 p-3 rounded text-green-700">
+                                📍 You will collect the order directly from the farmer's house.
+                                Delivery charges are not applicable.
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -227,7 +195,7 @@ const Pricedetails = ({ defaultAddress,cart }) => {
                 >
                     {deliveryMethod === "pickup"
                         ? "Place Order"
-                        : deliveryInfo.deliverable === true ?  deliveryMethod === "null" ? "Select payment method" : " Move to Payment Page" : "Not deliverable at this location"}
+                        : deliveryInfo.deliverable === true ? deliveryMethod === "null" ? "Select payment method" : " Move to Payment Page" : "Not deliverable at this location"}
                 </button>
 
 

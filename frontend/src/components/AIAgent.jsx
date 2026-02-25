@@ -58,14 +58,18 @@ function AIAgent() {
     };
 
 
-    
+
     return (
         <Layout>
             <div className="max-w-2xl   mx-auto mt-6 p-4 border rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-4">
                     🤖 AI Order Assistant
                 </h2>
-                <AddressSelector />
+                {/* <AddressSelector /> */}
+                <AddressSelector
+                    defaultAddress={defaultAddress}
+                    setDefaultAddress={setDefaultAddress}
+                />
 
 
                 <div className="flex flex-col gap-4">
