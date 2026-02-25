@@ -1,11 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 function Layout({ children }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const role = user?.role;
 
   const logout = () => {
@@ -13,133 +14,166 @@ function Layout({ children }) {
     navigate("/");
   };
 
+  const navLinkStyle = (path) =>
+    location.pathname === path
+      ? "text-green-600 font-semibold"
+      : "hover:text-green-600 transition";
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      
+    <div className="min-h-screen bg-gray-50">
+
       {/* HEADER */}
-      <header className="bg-green-600 text-white px-4 py-4 flex justify-between items-center shadow-md">
-        <h1 className="text-lg font-bold">🌾 Gaon2Ghar</h1>
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md 
+                         border-b border-gray-200 shadow-sm">
 
-        {/* Hamburger for mobile */}
-        <button
-          className="md:hidden text-2xl"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          ☰
-        </button>
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-6 font-medium">
-          {role === "customer" && (
-            <>
-              <Link to="/customer">Dashboard</Link>
-              <Link to="/orders/my">My Orders</Link>
-              <Link to="/cart">Cart</Link>
-              <Link
-                to="/ai"
-                className="bg-white text-green-600 px-3 py-1 rounded-lg"
-              >
-                🤖 AI
-              </Link>
-            </>
-          )}
-
-          {role === "farmer" && (
-            <>
-              <Link to="/farmer">Dashboard</Link>
-              <Link to="/farmer-orders">Orders</Link>
-            </>
-          )}
-
-          <button
-            onClick={logout}
-            className="bg-white text-green-600 px-3 py-1 rounded-lg"
+          {/* Logo */}
+          <h1
+            onClick={() => navigate("/")}
+            className="text-xl md:text-2xl font-extrabold 
+                       text-green-600 cursor-pointer"
           >
-            Logout
+            🌾 Gaon2Ghar
+          </h1>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8 font-medium text-gray-700">
+
+            {role === "customer" && (
+              <>
+                <Link to="/customer" className={navLinkStyle("/customer")}>
+                  Dashboard
+                </Link>
+                <Link to="/orders/my" className={navLinkStyle("/orders/my")}>
+                  My Orders
+                </Link>
+                <Link to="/cart" className={navLinkStyle("/cart")}>
+                  Cart
+                </Link>
+                <Link
+                  to="/ai"
+                  className="bg-green-600 text-white px-4 py-2 rounded-xl 
+                             shadow hover:bg-green-700 transition"
+                >
+                  🤖 AI Agent
+                </Link>
+              </>
+            )}
+
+            {role === "farmer" && (
+              <>
+                <Link to="/farmer" className={navLinkStyle("/farmer")}>
+                  Dashboard
+                </Link>
+                <Link to="/farmer-orders" className={navLinkStyle("/farmer-orders")}>
+                  Orders
+                </Link>
+              </>
+            )}
+
+            <button
+              onClick={logout}
+              className="px-4 py-2 rounded-xl border border-red-500 
+                         text-red-500 hover:bg-red-500 hover:text-white 
+                         transition"
+            >
+              Logout
+            </button>
+          </div>
+
+          {/* Mobile Hamburger */}
+          <button
+            className="md:hidden text-3xl text-green-600"
+            onClick={() => setMenuOpen(true)}
+          >
+            ☰
           </button>
         </div>
       </header>
 
-      {/* MOBILE DROPDOWN MENU */}
-      {menuOpen && (
-        <div className="md:hidden bg-white shadow-lg px-6 py-6 space-y-5 text-gray-800 font-medium">
-          
-          {role === "customer" && (
-            <>
-              <Link
-                to="/customer"
-                className="block text-lg"
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
+      {/* MOBILE DRAWER */}
+      <div
+        className={`fixed inset-0 z-50 transition-all duration-300 ${
+          menuOpen ? "visible opacity-100" : "invisible opacity-0"
+        }`}
+      >
+        {/* Overlay */}
+        <div
+          className="absolute inset-0 bg-black/40"
+          onClick={() => setMenuOpen(false)}
+        ></div>
 
-              <Link
-                to="/orders/my"
-                className="block text-lg"
-                onClick={() => setMenuOpen(false)}
-              >
-                My Orders
-              </Link>
-
-              <Link
-                to="/cart"
-                className="block text-lg"
-                onClick={() => setMenuOpen(false)}
-              >
-                Cart
-              </Link>
-
-              <Link
-                to="/ai"
-                className="block text-lg text-green-600"
-                onClick={() => setMenuOpen(false)}
-              >
-                🤖 AI Agent
-              </Link>
-            </>
-          )}
-
-          {role === "farmer" && (
-            <>
-              <Link
-                to="/farmer"
-                className="block text-lg"
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-
-              <Link
-                to="/farmer-orders"
-                className="block text-lg"
-                onClick={() => setMenuOpen(false)}
-              >
-                Orders
-              </Link>
-            </>
-          )}
-
+        {/* Drawer */}
+        <div
+          className={`absolute top-0 right-0 h-full w-72 bg-white shadow-2xl 
+                      p-6 transform transition-transform duration-300
+                      ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
+        >
           <button
-            onClick={logout}
-            className="block text-lg text-red-500"
+            onClick={() => setMenuOpen(false)}
+            className="text-gray-400 text-xl mb-6"
           >
-            Logout
+            ✕
           </button>
+
+          <div className="flex flex-col gap-6 text-lg font-medium text-gray-700">
+
+            {role === "customer" && (
+              <>
+                <Link to="/customer" onClick={() => setMenuOpen(false)}>
+                  Dashboard
+                </Link>
+                <Link to="/orders/my" onClick={() => setMenuOpen(false)}>
+                  My Orders
+                </Link>
+                <Link to="/cart" onClick={() => setMenuOpen(false)}>
+                  Cart
+                </Link>
+                <Link
+                  to="/ai"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-green-600 font-semibold"
+                >
+                  🤖 AI Agent
+                </Link>
+              </>
+            )}
+
+            {role === "farmer" && (
+              <>
+                <Link to="/farmer" onClick={() => setMenuOpen(false)}>
+                  Dashboard
+                </Link>
+                <Link to="/farmer-orders" onClick={() => setMenuOpen(false)}>
+                  Orders
+                </Link>
+              </>
+            )}
+
+            <button
+              onClick={logout}
+              className="text-red-500 text-left"
+            >
+              Logout
+            </button>
+          </div>
         </div>
-      )}
+      </div>
 
-      {/* CONTENT */}
-      <main className="p-4 md:p-8">{children}</main>
+      {/* PAGE CONTENT */}
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+        {children}
+      </main>
 
-      {/* Floating AI Button Only Mobile */}
+      {/* Floating AI Button (Mobile Only) */}
       {role === "customer" && (
         <Link
           to="/ai"
           className="md:hidden fixed bottom-6 right-6 bg-green-600 text-white 
                      w-14 h-14 flex items-center justify-center
-                     rounded-full shadow-xl 
-                     hover:bg-green-700 transition"
+                     rounded-full shadow-xl hover:bg-green-700 
+                     active:scale-95 transition"
         >
           🤖
         </Link>

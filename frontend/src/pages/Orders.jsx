@@ -75,150 +75,162 @@ const Orders = () => {
 
     return (
         <Layout>
-            <div className="bg-gray-100 min-h-screen p-6">
-                <div className="max-w-5xl mx-auto">
-
-                    <h2 className="text-2xl font-bold mb-6">
-                        My Orders
-                    </h2>
-
-                    {myOrders.length === 0 ? (
-                        <div className="bg-white p-6 rounded shadow text-center">
-                            No orders yet.
-                        </div>
-                    ) : (
-                        myOrders.map((order) => (
-                            <div
-                                key={order._id}
-                                className="bg-white p-5 rounded shadow mb-6 flex gap-6"
-                            >
-                                {/* LEFT SIDE - PRODUCT IMAGE */}
-                                <div>
-                                    <img
-                                        src={
-                                            order.productId?.images?.[0] ||
-                                            "https://via.placeholder.com/120"
-                                        }
-                                        alt={order.productId?.name}
-                                        className="w-28 h-28 object-cover rounded"
-                                    />
-                                </div>
-
-                                {/* RIGHT SIDE - DETAILS */}
-                                <div className="flex-1">
-
-                                    {/* Top Row */}
-                                    <div className="flex justify-between items-center">
-                                        <div>
-                                            <h3 className="text-lg font-semibold">
-                                                {order.productId?.name || "Product not available"}
-                                            </h3>
-
-                                            <p className="text-sm text-gray-500">
-                                                Order ID: {order._id.slice(-6)}
-                                            </p>
-
-                                            <p className="text-sm text-gray-500">
-                                                {new Date(order.createdAt).toLocaleDateString()}
-                                            </p>
-                                        </div>
-
-                                        {/* Status Badge */}
-                                        <span
-                                            className={`px-3 py-1 rounded text-sm font-semibold ${getStatusColor(order.status)}`}
-                                        >
-                                            {order.status}
-                                        </span>
-                                    </div>
-
-                                    {/* Middle Section */}
-                                    <div className="mt-4 text-sm text-gray-600 space-y-1">
-                                        <p>Quantity: {order.quantity} kg</p>
-                                        <p>Price per kg: ₹{order.productId?.price}</p>
-                                        <p className="font-semibold text-black">
-                                            Total: ₹{order.totalPrice}
-                                        </p>
-                                    </div>
-
-                                    {/* Address Section */}
-                                    {order.address && (
-                                        <div className="mt-4 text-sm text-gray-500">
-                                            <p className="font-semibold text-black">
-                                                Delivery Address:
-                                            </p>
-                                            <p>{order.address}</p>
-                                        </div>
-                                    )}
-
-                                    {order.status === "pending" && (
-                                        <button
-                                            onClick={() => cancelOrder(order._id)}
-                                            className="mt-3 bg-red-500 text-white px-3 py-1 rounded"
-                                        >
-                                            Cancel Order
-                                        </button>
-                                    )}
-
-                                    {order.status === "delivered" && order.rating === 0 && (
-                                        <div className="mt-3">
-                                            <select
-                                                onChange={(e) =>
-                                                    rateOrder(order._id, Number(e.target.value))
-                                                }
-                                                className="border p-1 rounded"
-                                            >
-                                                <option value="">Rate</option>
-                                                <option value="5">⭐⭐⭐⭐⭐</option>
-                                                <option value="4">⭐⭐⭐⭐</option>
-                                                <option value="3">⭐⭐⭐</option>
-                                                <option value="2">⭐⭐</option>
-                                                <option value="1">⭐</option>
-                                            </select>
-                                        </div>
-                                    )}
-
-
-
-                                    {/* Delivery Timeline */}
-                                    {order.status !== "rejected" && order.status !== "cancelled" && (
-                                        <div className="mt-4">
-                                            <div className="flex justify-between text-xs mb-2">
-                                                {orderSteps.map((step, index) => (
-                                                    <span
-                                                        key={step}
-                                                        className={`${index <= getStepIndex(order.status)
-                                                            ? "text-green-600 font-semibold"
-                                                            : "text-gray-400"
-                                                            }`}
-                                                    >
-                                                        {step.replaceAll("_", " ")}
-                                                    </span>
-                                                ))}
-                                            </div>
-
-                                            <div className="w-full bg-gray-200 h-2 rounded-full">
-                                                <div
-                                                    className="bg-green-600 h-2 rounded-full transition-all duration-500"
-                                                    style={{
-                                                        width: `${((getStepIndex(order.status) + 1) / orderSteps.length) * 100
-                                                            }%`,
-                                                    }}
-                                                ></div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                </div>
-                            </div>
-
-                        ))
-
-
-                    )}
+          <div className="bg-gray-50 min-h-screen py-8 px-4 md:px-8">
+            <div className="max-w-6xl mx-auto">
+      
+              <h2 className="text-3xl font-extrabold mb-8 text-gray-800">
+                My Orders
+              </h2>
+      
+              {myOrders.length === 0 ? (
+                <div className="bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-md text-center text-gray-500">
+                  No orders yet.
                 </div>
+              ) : (
+                myOrders.map((order) => (
+                  <div
+                    key={order._id}
+                    className="bg-white/80 backdrop-blur-lg border border-gray-200
+                               p-6 rounded-3xl shadow-md hover:shadow-xl 
+                               transition-all duration-300 mb-8 
+                               flex flex-col md:flex-row gap-6"
+                  >
+      
+                    {/* IMAGE */}
+                    <div className="flex justify-center md:justify-start">
+                      <img
+                        src={
+                          order.productId?.images?.[0] ||
+                          "https://via.placeholder.com/120"
+                        }
+                        alt={order.productId?.name}
+                        className="w-32 h-32 object-cover rounded-2xl shadow"
+                      />
+                    </div>
+      
+                    {/* DETAILS */}
+                    <div className="flex-1">
+      
+                      {/* HEADER */}
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+      
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-800">
+                            {order.productId?.name || "Product not available"}
+                          </h3>
+      
+                          <p className="text-sm text-gray-500">
+                            Order ID: {order._id.slice(-6)}
+                          </p>
+      
+                          <p className="text-sm text-gray-400">
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+      
+                        {/* STATUS BADGE */}
+                        <span
+                          className={`px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide shadow-sm ${getStatusColor(order.status)}`}
+                        >
+                          {order.status.replaceAll("_", " ")}
+                        </span>
+                      </div>
+      
+                      {/* ORDER INFO */}
+                      <div className="mt-5 text-sm text-gray-600 space-y-1">
+                        <p>Quantity: {order.quantity} kg</p>
+                        <p>Price per kg: ₹{order.productId?.price}</p>
+                        <p className="font-bold text-gray-900 text-lg">
+                          Total: ₹{order.totalPrice}
+                        </p>
+                      </div>
+      
+                      {/* ADDRESS */}
+                      {order.address && (
+                        <div className="mt-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-xl">
+                          <p className="font-semibold text-gray-800 mb-1">
+                            Delivery Address:
+                          </p>
+                          <p>{order.address}</p>
+                        </div>
+                      )}
+      
+                      {/* ACTION BUTTONS */}
+                      {order.status === "pending" && (
+                        <button
+                          onClick={() => cancelOrder(order._id)}
+                          className="mt-4 px-4 py-2 rounded-xl 
+                                     bg-red-500 text-white 
+                                     hover:bg-red-600 
+                                     transition-all duration-300"
+                        >
+                          Cancel Order
+                        </button>
+                      )}
+      
+                      {order.status === "delivered" && order.rating === 0 && (
+                        <div className="mt-4">
+                          <select
+                            onChange={(e) =>
+                              rateOrder(order._id, Number(e.target.value))
+                            }
+                            className="border border-gray-300 px-3 py-2 rounded-xl 
+                                       focus:ring-2 focus:ring-green-500 
+                                       focus:outline-none transition"
+                          >
+                            <option value="">Rate</option>
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="3">⭐⭐⭐</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="1">⭐</option>
+                          </select>
+                        </div>
+                      )}
+      
+                      {/* DELIVERY PROGRESS */}
+                      {order.status !== "rejected" &&
+                        order.status !== "cancelled" && (
+                          <div className="mt-6">
+      
+                            <div className="flex justify-between text-xs mb-3">
+                              {orderSteps.map((step, index) => (
+                                <span
+                                  key={step}
+                                  className={`capitalize ${
+                                    index <= getStepIndex(order.status)
+                                      ? "text-green-600 font-semibold"
+                                      : "text-gray-400"
+                                  }`}
+                                >
+                                  {step.replaceAll("_", " ")}
+                                </span>
+                              ))}
+                            </div>
+      
+                            <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                              <div
+                                className="bg-gradient-to-r from-green-500 to-green-700 
+                                           h-2 rounded-full transition-all duration-700"
+                                style={{
+                                  width: `${
+                                    ((getStepIndex(order.status) + 1) /
+                                      orderSteps.length) *
+                                    100
+                                  }%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
+          </div>
         </Layout>
-    );
+      );
 };
 
 export default Orders;

@@ -72,56 +72,11 @@ const DeliveryCharges = () => {
     };
 
 
-    // const updateQuantity = async (productId, quantity) => {
-    //     setCart((prevCart) => ({
-    //         ...prevCart,
-    //         items: prevCart.items.map((item) =>
-    //             item.product._id === productId
-    //                 ? { ...item, quantity }
-    //                 : item
-    //         ),
-    //     }));
+
+
 
     //     // Update backend silently
-    //     try {
-    //         await api.put("/cart/update", {
-    //             productId,
-    //             quantity,
-    //         });
-    //     } catch (err) {
-    //         console.error(err);
-    //     }
-    // };
-    //     if (!defaultAddress) {
-    //         toast.error("Please select address");
-    //         return;
-    //     }
-
-    //     if (cart.items.length === 0) {
-    //         toast.error("Please select Items");
-    //         return;
-    //     }
-
-
-    //     try {
-    //         await api.post("/cart/checkout", {
-    //             address: defaultAddress,
-    //             deliveryCharge: deliveryCharges,
-    //         });
-
-    //         toast.success("Order placed successfully");
-    //         fetchCart();
-    //     } catch (err) {
-    //         console.log(err);
-    //         console.log(err.response?.data?.message);
-
-    //         toast.error("Checkout failed");
-    //     }
-    // };
-
-
-
-
+   
 
 
     const totalProductValue = cart.items.reduce(
