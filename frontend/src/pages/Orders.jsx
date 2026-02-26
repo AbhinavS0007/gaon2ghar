@@ -5,6 +5,8 @@ import { toast } from "react-hot-toast";
 
 const Orders = () => {
     const [myOrders, setMyOrders] = useState([]);
+    const [loading, setloading] = useState(false);
+
 
     const orderSteps = [
         "pending",
@@ -24,11 +26,14 @@ const Orders = () => {
     }, []);
 
     const fetchMyOrders = async () => {
+        setloading(true);
         try {
             const res = await api.get("/orders/my");
             setMyOrders(res.data.reverse());
         } catch (err) {
             console.error(err);
+        }finally{
+            setloading(false);
         }
     };
 
@@ -71,6 +76,13 @@ const Orders = () => {
             toast.error("Rating failed");
         }
     };
+    if(loading){
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+              <div className="w-16 h-16 rounded-full border-4 border-transparent border-t-green-500 border-r-yellow-400 animate-spin"></div>
+            </div>
+          );
+    }
 
 
     return (

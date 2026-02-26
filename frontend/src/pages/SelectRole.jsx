@@ -49,14 +49,14 @@ function SelectRole() {
           </button>
 
 
-          <button
+          {/* <button
             onClick={() => chooseRole("farmer")}
             className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold text-lg 
                        hover:bg-blue-700 transition duration-300 
                        shadow-md hover:shadow-xl transform hover:-translate-y-1"
           >
             🌾 Continue as Farmer
-          </button>
+          </button> */}
 
         </div>
 

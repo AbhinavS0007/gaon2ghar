@@ -79,11 +79,15 @@ function Cart() {
 
 
 
-    if (loading) {
-        return <div className="p-6 text-center">Loading cart...</div>;
+    if(loading){
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+              <div className="w-16 h-16 rounded-full border-4 border-transparent border-t-green-500 border-r-yellow-400 animate-spin"></div>
+            </div>
+          );
     }
 
-//     return (
+
 //         <Layout>
 //             <div className="bg-gray-100 min-h-screen p-6">
 //                 <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
@@ -268,7 +272,7 @@ return (
                       >
                         {[...Array(
                           Math.floor(
-                            Math.min(40, item.product?.quantity)
+                            Math.min(60, item.product?.quantity)
                           )
                         )].map((_, i) => {
                           const value = i + 1;

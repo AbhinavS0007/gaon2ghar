@@ -5,7 +5,7 @@ import { Toaster, toast } from "react-hot-toast";
 
 function CustomerDashboard() {
     const [products, setProducts] = useState([]);
-    const [orders, setOrders] = useState({});
+    const [loading, setLoading] = useState(false);
     const [myOrders, setMyOrders] = useState([]);
     const [imageIndexes, setImageIndexes] = useState({});
     const [quantities, setQuantities] = useState({});
@@ -13,8 +13,16 @@ function CustomerDashboard() {
 
 
     const fetchProducts = async () => {
-        const res = await api.get("/products");
+        try {
+            setLoading(true)
+            const res = await api.get("/products");
         setProducts(res.data);
+        } catch (error) {
+            console.log(error);
+            
+        }finally{
+            setLoading(false)
+        }
     };
 
     const fetchMyOrders = async () => {
@@ -61,6 +69,13 @@ function CustomerDashboard() {
             toast.error("Failed to add to cart");
         }
     };
+    if(loading){
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+              <div className="w-16 h-16 rounded-full border-4 border-transparent border-t-green-500 border-r-yellow-400 animate-spin"></div>
+            </div>
+          );
+    }
 
     return (
         <Layout>

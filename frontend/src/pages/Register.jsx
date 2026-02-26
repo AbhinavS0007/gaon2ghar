@@ -144,7 +144,7 @@ function Register() {
             >
               <option value="">Select Role</option>
               <option value="customer">Customer</option>
-              <option value="farmer">Farmer</option>
+              {/* <option value="farmer">Farmer</option> */}
             </select>
 
             <button
